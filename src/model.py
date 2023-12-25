@@ -11,8 +11,8 @@ class ModelViewer(QWidget):
 
     def initUI(self):
         # 设置窗口标题和大小
-        self.setWindowTitle("3D Model 查看器")
-        self.setGeometry(100, 100, 640, 960)
+        # self.setWindowTitle("3D Model 查看器")
+        # self.setGeometry(100, 100, 640, 960)
 
         # 创建VTK渲染窗口交互器
         self.vtkWidget = QVTKRenderWindowInteractor(self)
