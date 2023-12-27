@@ -15,21 +15,26 @@ class CameraApp(QWidget):
         super().__init__()
 
         # 设置窗口标题和大小
-        # self.setWindowTitle("相机应用")
-        # self.setGeometry(100, 100, 640, 480)
+        self.setWindowTitle("相机应用")
+        self.setGeometry(100, 100, 640, 480)
 
         # 创建布局
         main_layout = QVBoxLayout()
 
         # 创建拍照按钮
         self.capture_button = QPushButton("拍照", self)
-        self.capture_button.setFixedSize(318, 40)           # 设置按钮宽度为318
+        self.capture_button.setFixedSize(210, 40)           # 设置按钮宽度为318
         self.capture_button.clicked.connect(self.capture_image)
 
         # 创建保存按钮
         self.save_button = QPushButton("保存", self)
-        self.save_button.setFixedSize(318, 40)
+        self.save_button.setFixedSize(210, 40)
         self.save_button.clicked.connect(self.save_image)
+
+        # 创建选择照片按钮
+        self.select_button = QPushButton("选择照片", self)
+        self.select_button.setFixedSize(210, 40)
+        self.select_button.clicked.connect(self.select_photo)
 
         # 创建用于显示相机图像的标签
         self.camera_label = QLabel(self)
@@ -51,6 +56,7 @@ class CameraApp(QWidget):
         input_layout = QHBoxLayout()
         input_layout.addWidget(self.capture_button)        
         input_layout.addWidget(self.save_button)
+        input_layout.addWidget(self.select_button)
 
         # 将布局添加到垂直布局
         main_layout.addLayout(camera_layout)
@@ -143,6 +149,25 @@ class CameraApp(QWidget):
             file_path = folder_path + ".jpg"
             cv2.imwrite(file_path, cv2.cvtColor(self.captured_image, cv2.COLOR_RGB2BGR))
             print(f'图像已保存到：{file_path}')
+
+    def select_photo(self):
+        """ 选择照片 """
+        # 弹出文件选择对话框
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_path, _ = QFileDialog.getOpenFileName(self, "选择照片", "", "图片文件 (*.png *.jpg *.bmp);;所有文件 (*)", options=options)
+
+        # 如果用户选择了照片，显示在图片标签中
+        if file_path:
+            # 读取照片
+            image = cv2.cvtColor(cv2.imread(file_path), cv2.COLOR_BGR2RGB)
+            # 将图像转换为Qt图像
+            qt_image = QImage(image.data, image.shape[1], image.shape[0], image.shape[1] * 3, QImage.Format_RGB888)
+            # 显示照片
+            self.photo_label.setPixmap(QPixmap.fromImage(qt_image))
+
+        # 已加载的图像
+        self.captured_image = image
 
     def detect_faces(self, frame):
         """ 在图像中检测人脸 """
