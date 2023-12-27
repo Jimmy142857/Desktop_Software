@@ -1,8 +1,8 @@
 import sys
 import cv2
 import os
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog, QSpacerItem, QSizePolicy
-from PyQt5.QtGui import QImage, QPixmap, QColor
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QFileDialog
+from PyQt5.QtGui import QImage, QPixmap, QColor, QPainter, QFont
 from PyQt5.QtCore import QTimer, Qt, QLibraryInfo
 
 
@@ -42,7 +42,7 @@ class CameraApp(QWidget):
         # 创建用于显示照片的标签
         self.photo_label = QLabel(self)
         placeholder_pixmap = QPixmap(640, 480)
-        placeholder_pixmap.fill(Qt.lightGray)           # 初始时使用浅灰色填充
+        placeholder_pixmap.fill(Qt.lightGray)                   # 初始时使用浅灰色填充
         self.photo_label.setPixmap(placeholder_pixmap)
 
         # 创建水平布局，包含相机图像标签和照片标签
@@ -71,11 +71,14 @@ class CameraApp(QWidget):
         self.timer.timeout.connect(self.update_camera_image)
 
         # 初始化相机
+        self.cap = None                                                 # 初始化相机
+        self.camera_available = False                                   # 新增标志
         camera_index = self.find_camera_index()                         # 获取相机id
         if camera_index is not None:
             self.cap = cv2.VideoCapture(camera_index)
-            print("Camera_index:", camera_index ,", Camera launch successfully.")
-            # 进行后续操作
+            if self.cap.isOpened():
+                print("Camera_index:", camera_index, ", Camera launch successfully.")
+                self.camera_available = True                            # 设置标志为True
         else:
             print("No camera found.")
 
@@ -90,7 +93,7 @@ class CameraApp(QWidget):
 
     def find_camera_index(self):
         """ 查找相机设备id """
-        for i in range(10):
+        for i in range(5):
             cap = cv2.VideoCapture(i)
             if cap.isOpened():
                 cap.release()
@@ -99,6 +102,11 @@ class CameraApp(QWidget):
 
     def capture_image(self):
         """ 拍照按钮功能 """
+        # 判断相机是否正常
+        if not self.camera_available:
+            print("No camera avaliable!")
+            return
+        
         # 读取当前帧
         ret, frame = self.cap.read()
 
@@ -116,6 +124,22 @@ class CameraApp(QWidget):
 
     def update_camera_image(self):
         """ 刷新相机界面 """
+        # 检查相机是否可用
+        if not self.camera_available:
+            # 如果相机不可用，使用占位符图像显示文本
+            placeholder_pixmap = QPixmap(640, 480)
+            placeholder_pixmap.fill(Qt.lightGray)
+
+            painter = QPainter(placeholder_pixmap)
+            font = QFont()
+            font.setPointSize(20)
+            painter.setFont(font)
+            painter.drawText(200, 240, "No Camera Found")  # 调整文本位置
+            painter.end()
+
+            self.camera_label.setPixmap(placeholder_pixmap)
+            return
+
         # 定期刷新显示的相机图像
         ret, frame = self.cap.read()
 
@@ -166,7 +190,7 @@ class CameraApp(QWidget):
             # 显示照片
             self.photo_label.setPixmap(QPixmap.fromImage(qt_image))
 
-        # 已加载的图像
+        # 保存已加载的图像
         self.captured_image = image
 
     def detect_faces(self, frame):
