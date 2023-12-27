@@ -52,7 +52,7 @@ class CameraApp(QWidget):
         photo_layout = QHBoxLayout()
         photo_layout.addWidget(self.photo_label)
 
-        # 创建水平布局，包含保存按钮和拍照按钮
+        # 创建水平布局，包含保存按钮、拍照按钮、选择按钮
         input_layout = QHBoxLayout()
         input_layout.addWidget(self.capture_button)        
         input_layout.addWidget(self.save_button)
