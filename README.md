@@ -3,5 +3,5 @@
 
 ## Demo Pages
 <p align="center">
-  <img src="https://github.com/Jimmy142857/Desktop_Software/blob/main/pictures/MainPage.png" />
+  <img src="https://github.com/Jimmy142857/Desktop_Software/blob/main/pictures/MainPage.png" width = "600"/>
 </p>
